@@ -188,7 +188,14 @@ def calculate_direction(track_id, current_box, previous_boxes):
 
 
 def detect_best_working_camera() -> int:
-    """Finds the camera index that produces non-zero frames on DirectShow or default backend."""
+    """Finds the camera index that produces non-zero frames. Skips probing on headless cloud environments."""
+    if os.name != "nt":
+        import glob
+        video_devs = glob.glob("/dev/video*")
+        if not video_devs:
+            print("[Camera] Headless cloud server detected (no /dev/video* devices). Running in full City Simulation Mode.")
+            return -1
+
     for idx in [1, 0]:
         try:
             if os.name == "nt" and hasattr(cv2, "CAP_DSHOW"):
@@ -205,7 +212,7 @@ def detect_best_working_camera() -> int:
                 c.release()
         except Exception:
             pass
-    return 1  # Default to 1
+    return -1 if os.name != "nt" else 1
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -456,6 +463,10 @@ class VideoStreamManager:
         self._init_camera()
 
     def _init_camera(self):
+        if self.camera_index is None or self.camera_index < 0:
+            self.cap = None
+            return
+
         try:
             if self.cap is not None:
                 try:

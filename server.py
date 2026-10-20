@@ -31,13 +31,18 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 async def serve_index():
     index_path = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_path):
         with open(index_path, "r", encoding="utf-8") as f:
             return f.read()
     return "<h1>SENTINEL ANPR Backend Running. Please check static/index.html.</h1>"
+
+
+@app.api_route("/healthz", methods=["GET", "HEAD"])
+async def health_check():
+    return {"status": "ok"}
 
 
 @app.get("/api/status")
