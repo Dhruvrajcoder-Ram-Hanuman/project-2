@@ -188,10 +188,13 @@ def calculate_direction(track_id, current_box, previous_boxes):
 
 
 def detect_best_working_camera() -> int:
-    """Finds the camera index that produces non-zero frames on Windows DirectShow."""
+    """Finds the camera index that produces non-zero frames on DirectShow or default backend."""
     for idx in [1, 0]:
         try:
-            c = cv2.VideoCapture(idx, cv2.CAP_DSHOW)
+            if os.name == "nt" and hasattr(cv2, "CAP_DSHOW"):
+                c = cv2.VideoCapture(idx, cv2.CAP_DSHOW)
+            else:
+                c = cv2.VideoCapture(idx)
             if c.isOpened():
                 for _ in range(4):
                     ret, f = c.read()
@@ -459,7 +462,10 @@ class VideoStreamManager:
                     self.cap.release()
                 except Exception:
                     pass
-            self.cap = cv2.VideoCapture(self.camera_index, cv2.CAP_DSHOW)
+            if os.name == "nt" and hasattr(cv2, "CAP_DSHOW"):
+                self.cap = cv2.VideoCapture(self.camera_index, cv2.CAP_DSHOW)
+            else:
+                self.cap = cv2.VideoCapture(self.camera_index)
             if not self.cap.isOpened():
                 self.cap = cv2.VideoCapture(self.camera_index)
             if self.cap.isOpened():

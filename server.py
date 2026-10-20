@@ -160,9 +160,10 @@ async def inject_test_detection(
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
     print("=" * 65)
     print("  SENTINEL ANPR - Vehicle Intelligence & Route Tracking")
-    print("  Command Center URL: http://localhost:8000")
-    print("  API Documentation:  http://localhost:8000/docs")
+    print(f"  Command Center URL: http://0.0.0.0:{port}")
+    print(f"  API Documentation:  http://0.0.0.0:{port}/docs")
     print("=" * 65)
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=False)

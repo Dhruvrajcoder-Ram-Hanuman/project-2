@@ -93,6 +93,30 @@ Interactive API Docs (Swagger UI) dekhne ke liye:
 
 ---
 
+## ☁️ 100% Free Cloud Deployment Guide (Render.com)
+
+Aap is project ko **Render.com** par 100% free live host kar sakte hain taaki koi bhi internet se direct access kar sake:
+
+1. **Render par Account Banayein:**
+   - [https://render.com](https://render.com) par jayein aur **"Sign In with GitHub"** karein.
+2. **New Web Service Create Karein:**
+   - Dashboard mein **`New +`** button dabakar **`Web Service`** chunein.
+   - Apni repository **`Dhruvrajcoder-Ram-Hanuman/project-2`** ko connect karein.
+3. **Settings (render.yaml se auto-detect ho jayengi):**
+   - **Name:** `sentinel-anpr`
+   - **Region:** Singapore ya Oregon
+   - **Branch:** `main`
+   - **Runtime:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn server:app --host 0.0.0.0 --port $PORT`
+   - **Instance Type:** `Free`
+4. **Deploy Web Service:**
+   - **`Deploy Web Service`** par click karein.
+   - 2 se 3 minute ke andar aapka project live ho jayega aur aapko ek permanent public URL mil jayega:  
+     👉 `https://sentinel-anpr.onrender.com`
+
+---
+
 ## 🎛️ Dashboard Features & How to Use
 
 ### 1. 📹 Live Surveillance Grid
