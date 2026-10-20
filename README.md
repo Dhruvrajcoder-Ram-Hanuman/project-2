@@ -1,102 +1,184 @@
-# 🛡️ SENTINEL ANPR - Vehicle Intelligence & Route Tracking Dashboard
+# 🛡️ SENTINEL ANPR - City Surveillance & Vehicle Route Intelligence System
 
-> **Enterprise-Grade Automatic Number Plate Recognition (ANPR / ALPR) & Vehicle Route Reconstruction System**  
-> Powered by **YOLOv8**, **EasyOCR**, **FastAPI**, **Leaflet.js Maps**, and **MongoDB Atlas** (with Resilient Local Failover).
-
----
-
-## 🌟 Overview
-
-SENTINEL ANPR is a complete, full-stack vehicle tracking surveillance command center. It analyzes traffic camera feeds in real time, tracks vehicle motion and direction, detects and extracts license plate text, records GPS-tagged sightings, and reconstructs chronological journeys across city camera networks on an interactive map.
+> **Enterprise-Grade Automatic Number Plate Recognition (ANPR / ALPR) & Vehicle Route Reconstruction Command Center**  
+> Built with **FastAPI**, **YOLOv8**, **EasyOCR**, **OpenCV**, **Leaflet.js**, and **MongoDB Atlas** (with Resilient Local Failover).
 
 ---
 
-## 🚀 Key Features
+## 🌟 Quick Overview / Project Highlights
 
-1. **Live Video Surveillance & ANPR Feed**
-   - Real-time MJPEG browser streaming (`/api/video_feed`).
-   - Dynamic bounding box tracking with YOLOv8.
-   - Live travel direction calculation (Northbound, Southbound, Eastbound, Westbound, Stationary).
-   - High-tech tactical HUD overlay showing camera node, street address, and live GPS coordinates.
-   - Built-in traffic simulation mode when physical webcams are offline or in headless environments.
-
-2. **Vehicle Route Reconstruction & Interactive Map**
-   - Search any vehicle registration plate (e.g. `HR06A1245`).
-   - Reconstructs chronological travel path across Panipat/city camera nodes.
-   - Visualized on an interactive **Leaflet.js** map with custom glowing markers and directional polyline arrows.
-   - Step-by-step chronological investigation timeline.
-
-3. **Multi-Camera Node Network**
-   - Multi-camera registry covering strategic corridors (Panipat Toll Plaza NH-44, GT Road Bus Stand, Sector 18 Main Gate).
-   - Real-time telemetry, uptime status, and detection counters per node.
-
-4. **Historical Database & Records**
-   - Filterable, searchable datatable with confidence scores, timestamps, and camera tags.
-   - One-click CSV export for official surveillance reports.
-
-5. **Investigation Studio (Image ANPR Scanner)**
-   - Upload any vehicle photo to extract plates on demand.
-   - Highlights detected bounding box and confidence score with direct option to track the vehicle's history.
-
-6. **Enterprise Dual-Layer Database Architecture**
-   - Connects to **MongoDB Atlas** (`Car.vehicle` collection) using atomic `$push` operations for high concurrency.
-   - Features **Resilient Local Failover**: If MongoDB Atlas has SSL issues or IP whitelisting restrictions, the system operates uninterrupted using a local mirror (`data/local_storage.json`).
+SENTINEL ANPR is a complete, full-stack vehicle tracking surveillance command center designed for police, traffic authorities, and smart city infrastructure:
+- 📹 **4-Camera Live City Surveillance Grid**: Multi-camera CCTV layout with independent road perspectives, vehicle animations, and ANPR telemetry.
+- 🔄 **City Simulation vs Physical Webcam**: Toggle between simulated high-density traffic feeds or live physical webcams with real-time YOLOv8 vehicle tracking and EasyOCR plate extraction.
+- 🗺️ **Vehicle Route Reconstruction**: Search any vehicle plate number (e.g. `HR06A1245`) to plot its chronological route across all city camera checkpoints on an interactive map.
+- 🔍 **On-Demand Image ANPR Scanner**: Upload vehicle images to extract plates and bounding boxes instantly.
+- 📋 **Full Surveillance Database & CSV Export**: Chronological logs with confidence scores, direction analysis, and exportable surveillance reports.
+- 🛡️ **Zero-Downtime Dual Storage**: Connects to MongoDB Atlas when online, with instant automatic failover to local resilient JSON storage (`data/local_storage.json`).
 
 ---
 
-## 📁 Project Architecture
+## 🚀 Step-by-Step Run Guide (Zero Se Start Karein)
 
-```
-project-2-main/
-│
-├── server.py              # FastAPI Web Server, REST APIs & MJPEG Streaming
-├── database.py            # Unified Database Manager (MongoDB Atlas + Resilient Local Store)
-├── camera_stream.py       # Computer Vision Pipeline (YOLOv8 + EasyOCR + Camera Streamer)
-├── camara.py              # Standalone OpenCV / ANPR Script
-├── camera.py              # English-spelling alias wrapper for camara.py
-├── car.py                 # Core vehicle detection models & search logic
-│
-├── static/
-│   └── index.html         # High-End Dark Tactical SOC Web Dashboard (Tailwind + Leaflet)
-│
-├── data/
-│   └── local_storage.json # Resilient local database mirror
-│
-├── run_dashboard.bat      # One-click Windows batch launcher
-├── requirements.txt       # Dependencies
-└── README.md              # Documentation
+Neeche diye gaye steps follow karke project ko kisi bhi system par 0 se run kar sakte hain:
+
+### 📋 Prerequisites (Zaroori Cheezein)
+1. **Python 3.10 ya Python 3.11** (Recommended: Python 3.11)
+   - [Python Download Link](https://www.python.org/downloads/)
+   - *Note: Python install karte waqt **"Add Python to PATH"** checkbox zaroor check karein!*
+2. **Git** (Code clone karne ke liye)
+   - [Git Download Link](https://git-scm.com/downloads)
+
+---
+
+### Step 1: Clone the Repository
+Apne terminal ya command prompt mein yeh command chalayein:
+
+```bash
+git clone https://github.com/Dhruvrajcoder-Ram-Hanuman/project-2.git
+cd project-2
 ```
 
 ---
 
-## ⚡ Quick Start
+### Step 2: (Optional but Recommended) Virtual Environment Banayein
 
-### 1. Launch with One Click (Windows)
-Double-click `run_dashboard.bat` in this folder.
+#### Windows (Command Prompt / PowerShell):
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
 
-### 2. Or Launch via Terminal
+#### macOS / Linux:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+### Step 3: Dependencies Install Karein
+Saare required libraries (FastAPI, Ultralytics YOLOv8, EasyOCR, OpenCV, PyMongo, etc.) install karne ke liye run karein:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### Step 4: Run the Project (Server Start Karein)
+
+#### Option A: One-Click Launcher (Windows ke liye Sabse Aasan)
+Sirf **`run_dashboard.bat`** file par double-click karein!  
+Yeh automatically Python detect karega, server start karega aur browser mein website open kar dega.
+
+#### Option B: Terminal Command se Run Karein
 ```bash
 python server.py
 ```
 
-Open your browser at:
-👉 **`http://localhost:8000`**
+*Agar aapke system par multiple Python versions hain (jaise Python 3.11):*
+```powershell
+& "C:\Users\<YourUser>\AppData\Local\Programs\Python\Python311\python.exe" server.py
+```
 
 ---
 
-## 📡 REST API Documentation
+### Step 5: Dashboard Open Karein
+Server start hone ke baad browser mein yeh URL kholein:
+
+👉 **`http://localhost:8000`**
+
+Interactive API Docs (Swagger UI) dekhne ke liye:  
+👉 **`http://localhost:8000/docs`**
+
+---
+
+## 🎛️ Dashboard Features & How to Use
+
+### 1. 📹 Live Surveillance Grid
+- **4 City Cameras**:
+  - `CAM_001`: Panipat Toll Plaza (NH-44 Highway)
+  - `CAM_004`: GT Road, Bus Stand Chowk (High-Density City Traffic)
+  - `CAM_005`: Sector 18 Main Gate (City Suburb Entrance)
+  - `CAM_002`: Ibrahim Lodi Road, Model Town (Commercial Center)
+- **Layout Switcher**: Switch between `2x2 Grid (⊞)`, `Focus View (⬛◻)`, `3-Wide (≣)`, and `Single View (□)`.
+- **Camera Filters**: One-click pills to isolate any camera.
+- **⛶ Expand Modal**: Click Expand on any feed to view it cinema-style.
+- **🏙️ City Sim / 📹 Webcam Toggle**: Switch between realistic city simulation and physical webcam detection.
+
+### 2. 🗺️ Vehicle Route Tracker
+- Top search bar ya quick chips se koi bhi number plate search karein (e.g. `HR06A1245`, `DL10CB4921`, `UP16BE7789`, `CH01AB9988`).
+- Panipat city map par car ka poora chronological safar timeline aur route line ke saath display ho jayega.
+
+### 3. 🔍 Image Scanner
+- Kisi bhi vehicle ki photo drag & drop karein ya upload karein.
+- AI engine (YOLOv8 + EasyOCR) plate detect karke license plate number aur confidence score nikalega aur directly database mein log karega.
+
+### 4. 📋 Records & CSV Export
+- Sabhi detections table mein timestamp, camera, location aur confidence score ke saath available hain.
+- **`⬇ CSV`** button dabakar poori report Excel / CSV format mein download karein.
+
+---
+
+## 📁 Project Directory Structure
+
+```
+project-2/
+│
+├── server.py              # FastAPI server, REST API endpoints & MJPEG multi-feed streamer
+├── camera_stream.py       # YOLOv8 + EasyOCR vision pipeline & city surveillance rendering engine
+├── database.py            # Unified Database Manager (MongoDB Atlas + resilient local JSON store)
+├── car.py                 # Core vehicle tracking & detection service
+├── camera.py              # Camera wrapper module
+├── camara.py              # Legacy standalone OpenCV vision script
+│
+├── static/
+│   └── index.html         # Pure CSS/JS dark tactical CCTV Command Center dashboard (Zero-CDN)
+│
+├── data/
+│   └── local_storage.json # Offline database mirror (pre-seeded with Panipat camera checkpoints)
+│
+├── yolov8n.pt             # Pre-trained YOLOv8 Nano weights for vehicle detection
+├── run_dashboard.bat      # One-click Windows dashboard runner & browser launcher
+├── requirements.txt       # Python dependencies list
+├── .gitignore             # Git ignore patterns
+└── README.md              # Complete documentation and setup guide
+```
+
+---
+
+## 📡 REST API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/` | Serves the ANPR Command Center Web Dashboard |
-| `GET` | `/api/status` | System health, camera status, and database connectivity |
-| `GET` | `/api/stats` | Aggregated analytics (total sightings, unique plates, today's count) |
-| `GET` | `/api/cameras` | List of registered camera nodes and coordinates |
-| `GET` | `/api/recent` | Recent vehicle detection feed |
-| `GET` | `/api/search?plate={plate}` | Vehicle route history & chronological checkpoints |
-| `GET` | `/api/video_feed` | Live MJPEG video stream with ANPR HUD overlay |
-| `POST` | `/api/scan_image` | Upload image for instant plate extraction |
+| `GET` | `/` | Command Center Web Dashboard HTML |
+| `GET` | `/api/status` | System health, database connectivity, active mode |
+| `GET` | `/api/stats` | Analytics summary (total detections, unique plates, active cameras) |
+| `GET` | `/api/cameras` | List of all registered city camera nodes |
+| `GET` | `/api/recent` | Recent vehicle sightings feed |
+| `GET` | `/api/search?plate={plate}` | Vehicle journey & chronological route history |
+| `GET` | `/api/feed/{cam_id}` | Real-time MJPEG live stream for a specific camera |
+| `GET` | `/api/video_feed` | Primary camera MJPEG stream |
+| `POST` | `/api/scan_image` | Upload image for instant plate recognition |
+| `POST` | `/api/camera/mode` | Switch feed mode (`simulation` or `webcam`) |
 | `POST` | `/api/camera/switch` | Switch active camera node |
-| `POST` | `/api/test_detection` | Inject demo detection event |
+| `POST` | `/api/test_detection` | Inject a mock detection event |
 
-Interactive Swagger API docs available at: **`http://localhost:8000/docs`**
+---
+
+## ❓ Troubleshooting & FAQs
+
+### Q1: Camera screen black kyu dikh rahi thi pehle?
+**Answer:** Windows Hello IR camera (Index 0) black frames return karta hai agar laptop cover ho ya IR mode mein ho. Ab system mein **Smart Auto-Detect** laga hai jo automatically non-zero working camera pick karta hai, aur dashboard default mein **City Simulation Mode** par chalta hai taaki bina camera ke bhi realistic traffic surveillance chalta rahe.
+
+### Q2: MongoDB Atlas connect nahi ho raha to kya project chalega?
+**Answer:** Haan! System mein **Resilient Local Storage Fallback** hai. Agar MongoDB Atlas SSL handshake ya internet issue ki wajah se unavailable ho, to saara data bina rukavat ke `data/local_storage.json` mein save aur search hota hai.
+
+### Q3: Python version error aaye to kya karein?
+**Answer:** EasyOCR aur PyTorch **Python 3.10 ya 3.11** par best chalte hain. Agar system default Python 3.14 ya koi naya version hai, to Python 3.11 install karke us path se `server.py` run karein.
+
+---
+
+## 👥 Contributors & License
+Developed for Automatic Number Plate Recognition and Smart City Surveillance.  
+Open for academic and security surveillance development.

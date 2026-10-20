@@ -6,14 +6,25 @@ echo   Starting FastAPI Server & Real-Time Surveillance Web Dashboard...
 echo ====================================================================
 echo.
 
-set PYTHON_EXEC="C:\Users\amanh\AppData\Local\Programs\Python\Python311\python.exe"
-
-if exist %PYTHON_EXEC% (
-    echo Using Python 3.11 Environment: %PYTHON_EXEC%
-    %PYTHON_EXEC% server.py
+:: Detect Python 3.11 or standard python
+set PY_CMD=python
+if exist "C:\Users\amanh\AppData\Local\Programs\Python\Python311\python.exe" (
+    set PY_CMD="C:\Users\amanh\AppData\Local\Programs\Python\Python311\python.exe"
 ) else (
-    echo Using default system python...
-    python server.py
+    py -3.11 --version >nul 2>&1
+    if not errorlevel 1 (
+        set PY_CMD=py -3.11
+    )
 )
+
+echo [*] Launching Server using: %PY_CMD%
+echo [*] Command Center URL: http://localhost:8000
+echo [*] Press CTRL+C to stop the server anytime.
+echo.
+
+:: Automatically open browser after 2 seconds in background
+start "" /b cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:8000"
+
+%PY_CMD% server.py
 
 pause
