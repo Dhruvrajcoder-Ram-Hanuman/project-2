@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTINEL ANPR | City Surveillance Command Center</title>
+<style>
+/* === RESET === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #04070d;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+button { cursor: pointer; font-family: inherit; }
+input, select { font-family: inherit; }
+* { scrollbar-width: thin; scrollbar-color: #334155 #0f172a; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* === HEADER === */
+#appHeader {
+  background: #080d18;
+  border-bottom: 1px solid #12213a;
+  position: sticky; top: 0; z-index: 200;
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px; flex-wrap: wrap; gap: 10px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #0891b2, #10b981);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.brand-name { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: 0.06em; }
+.brand-name span { color: #22d3ee; }
+.brand-badge {
+  display: inline-block; padding: 2px 8px;
+  background: rgba(8,145,178,0.15); border: 1px solid #0e7490;
+  border-radius: 4px; font-size: 10px; color: #22d3ee;
+  font-weight: 700; font-family: monospace; margin-left: 8px; vertical-align: middle;
+}
+.brand-sub { font-size: 11px; color: #475569; margin-top: 1px; }
+
+.hdr-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.sys-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; background: #0a111e;
+  border: 1px solid #1e293b; border-radius: 20px; font-size: 11px;
+}
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #10b981; animation: pulse 2s infinite; flex-shrink: 0;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+  50%      { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+}
+.sys-online { color: #10b981; font-weight: 700; }
+.clock-box { text-align: right; }
+.clock-time { font-family: monospace; font-size: 13px; font-weight: 700; color: #22d3ee; }
+.clock-date { font-size: 10px; color: #475569; font-family: monospace; }
+
+/* === NAV === */
+.header-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px; gap: 10px; flex-wrap: wrap;
+  border-top: 1px solid rgba(18,33,58,0.8);
+}
+.nav-tabs { display: flex; gap: 3px; flex-wrap: wrap; }
+.tab-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 7px;
+  font-size: 12px; font-weight: 500;
+  border: 1px solid transparent;
+  background: transparent; color: #64748b;
+  transition: all 0.15s; white-space: nowrap;
+}
+.tab-btn:hover { background: #1a2438; color: #e2e8f0; }
+.tab-btn.active {
+  background: rgba(8,145,178,0.1); border-color: #0e7490; color: #22d3ee;
+}
+.nav-quick-search { display: flex; align-items: center; gap: 6px; }
+.nav-quick-search input {
+  background: #0a111e; border: 1px solid #1e293b; border-radius: 7px;
+  padding: 6px 12px 6px 28px; color: #e2e8f0; font-size: 12px;
+  font-family: monospace; text-transform: uppercase; width: 230px; outline: none;
+  transition: border-color 0.15s;
+}
+.nav-quick-search input:focus { border-color: #0891b2; }
+.nav-quick-search input::placeholder { text-transform: none; color: #334155; }
+.qs-wrap { position: relative; }
+.qs-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: #334155; font-size: 11px; }
+.qs-btn { padding: 6px 12px; background: #0891b2; color: #fff; border: none; border-radius: 7px; font-size: 11px; font-weight: 600; }
+.qs-btn:hover { background: #0e7490; }
+
+/* === MAIN === */
+main { flex: 1; padding: 18px 20px; max-width: 1500px; margin: 0 auto; width: 100%; }
+
+/* === KPI CARDS === */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+@media (max-width: 800px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+.kpi-card {
+  background: #080e1c; border: 1px solid #12213a;
+  border-radius: 11px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color 0.15s;
+}
+.kpi-card:hover { border-color: #0e7490; }
+.kpi-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.kpi-icon.c { background: rgba(8,145,178,0.12); border: 1px solid rgba(14,116,144,0.5); }
+.kpi-icon.g { background: rgba(16,185,129,0.10); border: 1px solid rgba(5,150,105,0.4); }
+.kpi-icon.i { background: rgba(99,102,241,0.10); border: 1px solid rgba(79,70,229,0.4); }
+.kpi-icon.a { background: rgba(245,158,11,0.10); border: 1px solid rgba(217,119,6,0.4); }
+.kpi-label { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.kpi-value { font-family: monospace; font-size: 26px; font-weight: 700; margin-top: 2px; }
+.kpi-value.c { color: #22d3ee; }
+.kpi-value.g { color: #34d399; }
+.kpi-value.i { color: #a5b4fc; }
+.kpi-value.a { color: #fcd34d; }
+
+/* === TAB PANES === */
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIVE SURVEILLANCE TAB  — full city multi-camera grid
+═══════════════════════════════════════════════════════════════ */
+
+/* Top control bar */
+.surv-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  background: #080e1c; border: 1px solid #12213a; border-radius: 11px;
+  padding: 12px 16px; margin-bottom: 14px;
+}
+.surv-ctrl-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.surv-title { font-size: 13px; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
+.rec-dot { width: 9px; height: 9px; background: #ef4444; border-radius: 50%; animation: blink 1.2s step-start infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.15;} }
+.layout-toggle { display: flex; background: #0a111e; border: 1px solid #1e293b; border-radius: 7px; overflow: hidden; }
+.layout-btn {
+  padding: 5px 11px; font-size: 11px; font-weight: 600;
+  border: none; background: transparent; color: #475569;
+  transition: all 0.15s;
+}
+.layout-btn.active { background: #0891b2; color: #fff; }
+.layout-btn:hover:not(.active) { background: #1a2438; color: #e2e8f0; }
+.surv-ctrl-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cam-filter-btn {
+  padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  border: 1px solid #1e293b; background: #0a111e; color: #64748b;
+  transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+}
+.cam-filter-btn.active { background: rgba(8,145,178,0.12); border-color: #0e7490; color: #22d3ee; }
+.cam-filter-btn:hover:not(.active) { border-color: #334155; color: #e2e8f0; }
+.cam-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* Camera grid layouts */
+.cam-grid {
+  display: grid; gap: 10px;
+  transition: all 0.2s;
+}
+.cam-grid.layout-4  { grid-template-columns: repeat(2, 1fr); }
+.cam-grid.layout-3  { grid-template-columns: repeat(3, 1fr); }
+.cam-grid.layout-2  { grid-template-columns: repeat(2, 1fr); }
+.cam-grid.layout-1  { grid-template-columns: 1fr; }
+.cam-grid.layout-big {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto auto;
+}
+.cam-grid.layout-big .cam-tile:first-child {
+  grid-row: span 2;
+}
+@media (max-width: 900px) {
+  .cam-grid { grid-template-columns: 1fr !important; }
+  .cam-grid.layout-big .cam-tile:first-child { grid-row: span 1; }
+}
+
+/* Single camera tile */
+.cam-tile {
+  background: #060b16; border: 2px solid #10213a;
+  border-radius: 10px; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.cam-tile:hover { border-color: #0891b2; box-shadow: 0 0 18px rgba(8,145,178,0.12); }
+.cam-tile.selected { border-color: #22d3ee; box-shadow: 0 0 22px rgba(34,211,238,0.18); }
+
+/* Tile header */
+.tile-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 12px;
+  background: rgba(6,9,15,0.95);
+  border-bottom: 1px solid #0c1a2e;
+  flex-shrink: 0;
+}
+.tile-cam-id { font-family: monospace; font-size: 12px; font-weight: 700; }
+.tile-cam-id.c1 { color: #22d3ee; }
+.tile-cam-id.c2 { color: #4ade80; }
+.tile-cam-id.c3 { color: #fb923c; }
+.tile-cam-id.c4 { color: #a78bfa; }
+.tile-loc { font-size: 10px; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.tile-status { display: flex; align-items: center; gap: 5px; }
+.tile-live { font-size: 10px; font-weight: 700; color: #ef4444; font-family: monospace; }
+.tile-blink { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: blink 1s step-start infinite; }
+
+/* Video viewport inside tile */
+.tile-video {
+  position: relative; background: #000;
+  flex: 1; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.tile-video img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+/* On-screen overlay badge (bottom-left corner of video) */
+.tile-overlay {
+  position: absolute; bottom: 6px; left: 8px;
+  display: flex; gap: 5px; pointer-events: none;
+}
+.tile-badge {
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-family: monospace; font-weight: 700;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(3px);
+}
+.tile-badge.sim  { color: #67e8f9; border: 1px solid rgba(34,211,238,0.4); }
+.tile-badge.gps  { color: #94a3b8; border: 1px solid rgba(51,65,85,0.7); }
+.tile-badge.det  { color: #34d399; border: 1px solid rgba(16,185,129,0.5); }
+
+/* Tile footer */
+.tile-footer {
+  padding: 5px 12px;
+  background: rgba(6,9,15,0.95);
+  border-top: 1px solid #0c1a2e;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; flex-shrink: 0;
+}
+.tile-gps { font-family: monospace; color: #334155; }
+.tile-expand { background: none; border: 1px solid #1e293b; border-radius: 4px; padding: 2px 8px; color: #64748b; font-size: 10px; }
+.tile-expand:hover { border-color: #0891b2; color: #22d3ee; }
+
+/* ── Fullscreen / expanded modal ──────────────────────────────────────── */
+#camModal {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+  flex-direction: column;
+}
+#camModal.open { display: flex; }
+#camModal .modal-inner {
+  background: #060b16; border: 2px solid #22d3ee;
+  border-radius: 14px; overflow: hidden;
+  width: 92vw; max-width: 1100px;
+  display: flex; flex-direction: column;
+}
+#camModal .modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; background: #080e1c; border-bottom: 1px solid #12213a;
+}
+#camModal .modal-title { font-size: 14px; font-weight: 700; color: #22d3ee; font-family: monospace; }
+#camModal .modal-close { background: #1e293b; border: none; border-radius: 6px; padding: 6px 12px; color: #e2e8f0; font-size: 13px; }
+#camModal .modal-close:hover { background: #334155; }
+#modalFeed { width: 100%; max-height: 65vh; object-fit: contain; background: #000; display: block; }
+#camModal .modal-footer {
+  padding: 10px 18px; background: #080e1c; border-top: 1px solid #12213a;
+  display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #475569;
+}
+
+/* ── Right sidebar: live detections ticker ─────────────────────────────── */
+.surv-layout { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
+@media (max-width: 1100px) { .surv-layout { grid-template-columns: 1fr; } }
+.surv-sidebar { display: flex; flex-direction: column; gap: 12px; }
+
+.ticker-panel {
+  background: #080e1c; border: 1px solid #12213a;
+  border-radius: 11px; overflow: hidden; flex: 1;
+}
+.ticker-head {
+  padding: 10px 14px; border-bottom: 1px solid #12213a;
+  background: rgba(6,9,15,0.8);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ticker-head-title { font-size: 12px; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 7px; }
+.auto-badge { padding: 2px 7px; background: #0a111e; border-radius: 4px; font-size: 10px; color: #475569; font-family: monospace; }
+.ticker-body { overflow-y: auto; padding: 8px; max-height: 520px; display: flex; flex-direction: column; gap: 6px; }
+.ticker-card {
+  padding: 8px 10px; background: rgba(10,17,30,0.9); border: 1px solid #12213a;
+  border-radius: 7px; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; cursor: pointer; transition: border-color 0.15s;
+}
+.ticker-card:hover { border-color: #0e7490; }
+.tc-plate { padding: 3px 7px; background: rgba(8,145,178,0.1); border: 1px solid rgba(14,116,144,0.5); border-radius: 4px; font-family: monospace; font-weight: 700; font-size: 11px; color: #22d3ee; white-space: nowrap; }
+.tc-info { flex: 1; min-width: 0; }
+.tc-cam { font-size: 11px; font-weight: 600; color: #e2e8f0; }
+.tc-dir { font-size: 10px; color: #64748b; }
+.tc-loc { font-size: 9px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tc-right { text-align: right; flex-shrink: 0; }
+.conf-b { padding: 2px 5px; border-radius: 4px; font-size: 9px; font-family: monospace; font-weight: 700; }
+.conf-h { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.4); color: #34d399; }
+.conf-l { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.4); color: #fcd34d; }
+.tc-ts { font-family: monospace; font-size: 9px; color: #334155; margin-top: 2px; }
+
+/* Cam stats box */
+.cam-stats-box {
+  background: #080e1c; border: 1px solid #12213a; border-radius: 11px; padding: 14px;
+}
+.csb-title { font-size: 12px; font-weight: 700; color: #f1f5f9; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.csb-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+.csb-item { background: #06090f; border: 1px solid #0c1a2e; border-radius: 7px; padding: 8px 10px; }
+.csb-label { font-size: 9px; color: #334155; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; }
+.csb-val { font-family: monospace; font-size: 15px; font-weight: 700; margin-top: 2px; }
+
+/* === TRACKER TAB === */
+.search-box {
+  padding: 18px 20px; background: #080e1c; border: 1px solid #12213a;
+  border-radius: 11px; margin-bottom: 14px;
+}
+.search-box h2 { font-size: 14px; font-weight: 700; color: #f1f5f9; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+.search-box p { font-size: 11px; color: #475569; margin-bottom: 12px; }
+.search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.search-row input {
+  flex: 1; min-width: 200px;
+  background: #06090f; border: 1px solid #1e293b; border-radius: 8px;
+  padding: 9px 14px; color: #e2e8f0; font-size: 13px; font-family: monospace;
+  text-transform: uppercase; outline: none;
+}
+.search-row input:focus { border-color: #0891b2; }
+.search-row input::placeholder { text-transform: none; color: #334155; }
+.btn-primary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 20px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #0891b2, #0d9488);
+  color: #fff; font-size: 13px; font-weight: 600; transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.9; }
+.quick-chips { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.quick-chips span { font-size: 11px; color: #475569; }
+.chip { padding: 3px 9px; background: #0a111e; border: 1px solid #1e293b; border-radius: 5px; font-family: monospace; font-size: 11px; color: #64748b; }
+.chip:hover { border-color: #0891b2; color: #22d3ee; }
+
+.summary-card {
+  padding: 14px 18px; background: rgba(8,145,178,0.04); border: 1px solid rgba(14,116,144,0.4);
+  border-radius: 11px; margin-bottom: 14px; display: none;
+}
+.summary-card.visible { display: block; }
+.summary-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
+@media (max-width: 700px) { .summary-grid { grid-template-columns: repeat(2,1fr); } }
+.sum-label { font-size: 10px; color: #475569; margin-bottom: 4px; }
+.sum-val { font-family: monospace; font-weight: 700; }
+.sum-val.big { font-size: 20px; color: #22d3ee; }
+.sum-val.md  { font-size: 13px; color: #f1f5f9; }
+.sum-val.sm  { font-size: 11px; color: #64748b; }
+.sum-val.gn  { color: #34d399; font-size: 13px; }
+
+.tracker-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .tracker-layout { grid-template-columns: 1fr; } }
+
+.map-panel { background: #080e1c; border: 1px solid #12213a; border-radius: 11px; overflow: hidden; }
+.map-header { padding: 9px 14px; border-bottom: 1px solid #12213a; background: rgba(6,9,15,0.8); display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.map-header-title { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #e2e8f0; }
+#routeMap { height: 450px; background: #050a14; }
+
+.timeline-panel { background: #080e1c; border: 1px solid #12213a; border-radius: 11px; overflow: hidden; display: flex; flex-direction: column; }
+.tl-header { padding: 9px 14px; border-bottom: 1px solid #12213a; background: rgba(6,9,15,0.8); display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: #e2e8f0; }
+#timelineList { flex: 1; overflow-y: auto; padding: 12px; max-height: 450px; display: flex; flex-direction: column; gap: 12px; }
+.tl-empty { text-align: center; padding: 50px 20px; color: #334155; font-size: 12px; }
+.tl-item { position: relative; padding-left: 20px; padding-bottom: 10px; border-left: 2px solid #0c2240; }
+.tl-dot { position: absolute; left: -9px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: #0891b2; border: 2px solid #04070d; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #fff; }
+.tl-dot.last { background: #10b981; }
+.tl-time { font-family: monospace; font-size: 11px; color: #22d3ee; font-weight: 600; }
+.tl-cam { font-size: 12px; font-weight: 600; color: #f1f5f9; margin-top: 2px; }
+.tl-loc { font-size: 10px; color: #475569; margin-top: 1px; }
+.tl-conf { font-family: monospace; font-size: 10px; color: #34d399; margin-top: 2px; }
+
+/* === CAMERAS NODE TAB === */
+.cameras-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+@media (max-width: 900px) { .cameras-grid { grid-template-columns: 1fr; } }
+.cam-node { background: #080e1c; border: 1px solid #12213a; border-radius: 11px; padding: 18px; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.15s; }
+.cam-node:hover { border-color: #0e7490; }
+.cam-node-header { display: flex; align-items: center; justify-content: space-between; }
+.cam-id-badge { padding: 4px 10px; background: rgba(8,145,178,0.12); border: 1px solid rgba(14,116,144,0.5); border-radius: 6px; font-family: monospace; font-weight: 700; font-size: 12px; color: #22d3ee; }
+.cam-status { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #34d399; }
+.cam-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; animation: pulse 2s infinite; }
+.cam-name { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+.cam-gps { font-family: monospace; font-size: 11px; color: #334155; margin-top: 2px; }
+.cam-thumb { height: 120px; background: #000; border-radius: 7px; overflow: hidden; border: 1px solid #12213a; }
+.cam-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cam-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding-top: 10px; border-top: 1px solid #0c1a2e; }
+.cam-stat { background: #06090f; border-radius: 6px; padding: 7px; text-align: center; }
+.cam-stat-label { font-size: 9px; color: #334155; }
+.cam-stat-val { font-family: monospace; font-size: 14px; font-weight: 700; color: #22d3ee; margin-top: 2px; }
+.view-cam-btn { width: 100%; padding: 7px; background: rgba(8,145,178,0.08); border: 1px solid rgba(14,116,144,0.4); border-radius: 7px; color: #22d3ee; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.view-cam-btn:hover { background: rgba(8,145,178,0.15); }
+
+/* === RECORDS TAB === */
+.records-header {
+  background: #080e1c; border: 1px solid #12213a; border-radius: 11px;
+  padding: 14px 18px; margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+}
+.records-header h2 { font-size: 14px; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
+.records-header p { font-size: 11px; color: #475569; margin-top: 2px; }
+.records-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-input { background: #06090f; border: 1px solid #1e293b; border-radius: 7px; padding: 6px 12px; color: #e2e8f0; font-size: 11px; font-family: monospace; text-transform: uppercase; outline: none; width: 180px; }
+.filter-input:focus { border-color: #0891b2; }
+.btn-sec { display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #0a111e; border: 1px solid #1e293b; border-radius: 7px; color: #e2e8f0; font-size: 11px; font-weight: 500; }
+.btn-sec:hover { background: #1a2438; }
+
+.table-panel { background: #080e1c; border: 1px solid #12213a; border-radius: 11px; overflow: hidden; }
+.records-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.records-table thead { background: rgba(6,9,15,0.9); border-bottom: 1px solid #12213a; }
+.records-table th { padding: 10px 12px; text-align: left; color: #334155; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; white-space: nowrap; }
+.records-table tbody tr { border-bottom: 1px solid rgba(12,26,46,0.7); transition: background 0.1s; }
+.records-table tbody tr:hover { background: rgba(10,17,30,0.6); }
+.records-table td { padding: 9px 12px; vertical-align: middle; }
+.td-plate { font-family: monospace; font-weight: 700; color: #22d3ee; }
+.td-cam { font-family: monospace; color: #64748b; }
+.td-loc { color: #94a3b8; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-ts { font-family: monospace; color: #334155; white-space: nowrap; }
+.sb { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-family: monospace; font-weight: 700; }
+.sb-h { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+.sb-l { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
+.tr-btn { padding: 3px 8px; background: rgba(8,145,178,0.1); border: 1px solid rgba(14,116,144,0.4); border-radius: 4px; color: #22d3ee; font-size: 10px; font-weight: 600; }
+.tr-btn:hover { background: rgba(8,145,178,0.2); }
+
+/* === SCANNER TAB === */
+.scanner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 800px) { .scanner-grid { grid-template-columns: 1fr; } }
+.upload-panel, .result-panel { background: #080e1c; border: 1px solid #12213a; border-radius: 11px; padding: 18px; }
+.panel-title { font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.field-label { font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 5px; }
+.sel-field { width: 100%; background: #06090f; border: 1px solid #1e293b; border-radius: 7px; padding: 7px 10px; color: #e2e8f0; font-size: 12px; outline: none; margin-bottom: 12px; }
+.drop-zone {
+  border: 2px dashed #0c2240; border-radius: 9px;
+  padding: 36px 20px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: rgba(8,145,178,0.02);
+  min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.drop-zone:hover { border-color: #0891b2; background: rgba(8,145,178,0.06); }
+.drop-icon { font-size: 36px; margin-bottom: 10px; }
+.drop-title { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.drop-sub { font-size: 11px; color: #334155; margin-top: 4px; }
+.file-info { display: none; margin-top: 10px; padding: 8px 12px; background: #06090f; border: 1px solid #1e293b; border-radius: 7px; align-items: center; justify-content: space-between; gap: 10px; }
+.file-info.visible { display: flex; }
+.file-name { font-family: monospace; font-size: 11px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scan-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: #0891b2; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.scan-btn:hover { background: #0e7490; }
+.scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.result-placeholder { border: 1px solid #0c1a2e; border-radius: 8px; background: rgba(4,7,13,0.5); min-height: 240px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: #334155; font-size: 12px; text-align: center; }
+.result-image-wrap { display: none; }
+.result-image-wrap.visible { display: block; }
+.result-image-wrap img { width: 100%; max-height: 240px; object-fit: contain; border-radius: 7px; border: 1px solid #12213a; }
+.plates-list { margin-top: 10px; display: flex; flex-direction: column; gap: 7px; }
+.plate-result { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 13px; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.25); border-radius: 7px; }
+.plate-result-num { font-family: monospace; font-weight: 700; color: #34d399; font-size: 14px; }
+.plate-result-conf { font-size: 11px; color: #64748b; }
+
+/* === LEAFLET === */
+.leaflet-container { background: #050a14; }
+.leaflet-tile { filter: brightness(0.55) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); }
+.leaflet-popup-content-wrapper { background: #080e1c; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; }
+.leaflet-popup-tip { background: #080e1c; }
+
+/* === SPINNER === */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 18px; height: 18px; border: 2px solid #12213a; border-top-color: #0891b2; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; }
+
+/* === FOOTER === */
+footer { border-top: 1px solid #0c1a2e; background: #04070d; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #1e293b; flex-wrap: wrap; gap: 8px; }
+footer span { font-family: monospace; color: #12213a; }
+
+/* === SECTION HEADER === */
+.section-header { margin-bottom: 14px; }
+.section-header h2 { font-size: 14px; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
+.section-header p { font-size: 11px; color: #475569; margin-top: 3px; }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"
+  onerror="this.onerror=null;this.href=''">
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header id="appHeader">
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <div>
+          <span class="brand-name">SENTINEL<span>ANPR</span></span>
+          <span class="brand-badge">v2.1 PRO</span>
+        </div>
+        <div class="brand-sub">City Surveillance &amp; Vehicle Intelligence Command Center</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="sys-pill">
+        <div class="pulse-dot"></div>
+        <span class="sys-online">SYSTEM ONLINE</span>
+        <span style="color:#334155">|</span>
+        <span id="hdrCams" style="color:#64748b;font-family:monospace;font-size:10px;">4 CAM</span>
+      </div>
+      <div class="sys-pill" style="gap:8px;">
+        <span style="font-size:11px;color:#475569">DB:</span>
+        <span id="hdrDb" style="font-family:monospace;font-size:10px;color:#22d3ee">LOCAL</span>
+      </div>
+      <div class="clock-box">
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-date" id="clockDate">---</div>
+      </div>
+    </div>
+  </div>
+  <div class="header-nav">
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('surveillance')">📹 Live Surveillance</button>
+      <button class="tab-btn" onclick="switchTab('tracker')">🗺️ Route Tracker</button>
+      <button class="tab-btn" onclick="switchTab('cameras')">📡 Camera Nodes</button>
+      <button class="tab-btn" onclick="switchTab('records')">📋 All Records</button>
+      <button class="tab-btn" onclick="switchTab('scanner')">🔍 Image Scanner</button>
+    </div>
+    <div class="nav-quick-search">
+      <div class="qs-wrap">
+        <span class="qs-icon">🔍</span>
+        <input type="text" id="navSearch" placeholder="Quick plate search... e.g. HR06A1245" maxlength="12">
+        <button class="qs-btn" onclick="navQuickSearch()">TRACK</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card"><div class="kpi-icon c">📸</div><div><div class="kpi-label">Total Detections</div><div class="kpi-value c" id="kpiTotal">—</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon g">🚗</div><div><div class="kpi-label">Unique Plates</div><div class="kpi-value g" id="kpiUnique">—</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon i">📡</div><div><div class="kpi-label">Active Cameras</div><div class="kpi-value i" id="kpiCams">—</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon a">📅</div><div><div class="kpi-label">Today</div><div class="kpi-value a" id="kpiToday">—</div></div></div>
+  </div>
+
+  <!-- ═══ TAB: LIVE SURVEILLANCE ═══ -->
+  <div class="tab-pane active" id="tab-surveillance">
+
+    <!-- Control bar -->
+    <div class="surv-controls">
+      <div class="surv-ctrl-left">
+        <div class="surv-title"><span class="rec-dot"></span>LIVE CITY SURVEILLANCE GRID</div>
+        <!-- Mode switcher -->
+        <div class="layout-toggle" style="margin-left:8px;">
+          <button class="layout-btn active" id="modeBtnSim" onclick="setFeedMode('simulation')" title="City Traffic Simulation">🏙️ City Sim</button>
+          <button class="layout-btn" id="modeBtnCam" onclick="setFeedMode('webcam')" title="Physical Webcam Feed">📹 Webcam</button>
+        </div>
+        <!-- Layout picker -->
+        <div class="layout-toggle">
+          <button class="layout-btn" onclick="setLayout('layout-big')" title="Focus + sidebar">⬛◻</button>
+          <button class="layout-btn active" onclick="setLayout('layout-4')" title="2×2 grid">⊞</button>
+          <button class="layout-btn" onclick="setLayout('layout-3')" title="3-wide">≣</button>
+          <button class="layout-btn" onclick="setLayout('layout-1')" title="Single">□</button>
+        </div>
+      </div>
+      <div class="surv-ctrl-right">
+        <button class="cam-filter-btn active" id="fbtn-CAM_001" onclick="toggleCamFilter('CAM_001')">
+          <span class="cam-dot" style="background:#22d3ee"></span>CAM 001 · TOLL
+        </button>
+        <button class="cam-filter-btn active" id="fbtn-CAM_004" onclick="toggleCamFilter('CAM_004')">
+          <span class="cam-dot" style="background:#4ade80"></span>CAM 004 · GT RD
+        </button>
+        <button class="cam-filter-btn active" id="fbtn-CAM_005" onclick="toggleCamFilter('CAM_005')">
+          <span class="cam-dot" style="background:#fb923c"></span>CAM 005 · SEC-18
+        </button>
+        <button class="cam-filter-btn active" id="fbtn-CAM_002" onclick="toggleCamFilter('CAM_002')">
+          <span class="cam-dot" style="background:#a78bfa"></span>CAM 002 · MDL TWN
+        </button>
+      </div>
+    </div>
+
+    <!-- Surveillance layout: camera grid + sidebar -->
+    <div class="surv-layout">
+
+      <!-- Camera Grid -->
+      <div>
+        <div class="cam-grid layout-4" id="camGrid">
+
+          <!-- CAM_001 -->
+          <div class="cam-tile" id="tile-CAM_001" data-cam="CAM_001">
+            <div class="tile-header">
+              <div>
+                <div class="tile-cam-id c1">📹 CAM_001</div>
+                <div class="tile-loc">Panipat Toll Plaza · NH-44</div>
+              </div>
+              <div class="tile-status"><div class="tile-blink"></div><span class="tile-live">LIVE</span></div>
+            </div>
+            <div class="tile-video" style="height:220px;">
+              <img src="/api/feed/CAM_001" alt="CAM_001 feed"
+                onerror="this.src='';this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div style="display:none;position:absolute;inset:0;background:#060b16;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#334155;font-size:12px;">
+                <span style="font-size:30px;">📷</span><span>Feed unavailable</span>
+              </div>
+              <div class="tile-overlay">
+                <span class="tile-badge sim">SIM</span>
+                <span class="tile-badge gps">29.4215°N 76.9682°E</span>
+              </div>
+            </div>
+            <div class="tile-footer">
+              <span class="tile-gps">NH-44 · Haryana</span>
+              <button class="tile-expand" onclick="expandCam('CAM_001','Panipat Toll Plaza · NH-44')">⛶ Expand</button>
+            </div>
+          </div>
+
+          <!-- CAM_004 -->
+          <div class="cam-tile" id="tile-CAM_004" data-cam="CAM_004">
+            <div class="tile-header">
+              <div>
+                <div class="tile-cam-id c2">📹 CAM_004</div>
+                <div class="tile-loc">GT Road · Bus Stand Chowk</div>
+              </div>
+              <div class="tile-status"><div class="tile-blink"></div><span class="tile-live">LIVE</span></div>
+            </div>
+            <div class="tile-video" style="height:220px;">
+              <img src="/api/feed/CAM_004" alt="CAM_004 feed"
+                onerror="this.src='';this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div style="display:none;position:absolute;inset:0;background:#060b16;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#334155;font-size:12px;">
+                <span style="font-size:30px;">📷</span><span>Feed unavailable</span>
+              </div>
+              <div class="tile-overlay">
+                <span class="tile-badge sim">SIM</span>
+                <span class="tile-badge gps">29.3909°N 76.9635°E</span>
+              </div>
+            </div>
+            <div class="tile-footer">
+              <span class="tile-gps">GT Road · Haryana</span>
+              <button class="tile-expand" onclick="expandCam('CAM_004','GT Road · Bus Stand Chowk')">⛶ Expand</button>
+            </div>
+          </div>
+
+          <!-- CAM_005 -->
+          <div class="cam-tile" id="tile-CAM_005" data-cam="CAM_005">
+            <div class="tile-header">
+              <div>
+                <div class="tile-cam-id c3">📹 CAM_005</div>
+                <div class="tile-loc">Sector 18 Main Gate</div>
+              </div>
+              <div class="tile-status"><div class="tile-blink"></div><span class="tile-live">LIVE</span></div>
+            </div>
+            <div class="tile-video" style="height:220px;">
+              <img src="/api/feed/CAM_005" alt="CAM_005 feed"
+                onerror="this.src='';this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div style="display:none;position:absolute;inset:0;background:#060b16;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#334155;font-size:12px;">
+                <span style="font-size:30px;">📷</span><span>Feed unavailable</span>
+              </div>
+              <div class="tile-overlay">
+                <span class="tile-badge sim">SIM</span>
+                <span class="tile-badge gps">29.3784°N 76.9812°E</span>
+              </div>
+            </div>
+            <div class="tile-footer">
+              <span class="tile-gps">Sec-18 · Panipat</span>
+              <button class="tile-expand" onclick="expandCam('CAM_005','Sector 18 Main Gate')">⛶ Expand</button>
+            </div>
+          </div>
+
+          <!-- CAM_002 -->
+          <div class="cam-tile" id="tile-CAM_002" data-cam="CAM_002">
+            <div class="tile-header">
+              <div>
+                <div class="tile-cam-id c4">📹 CAM_002</div>
+                <div class="tile-loc">Ibrahim Lodi Rd · Model Town</div>
+              </div>
+              <div class="tile-status"><div class="tile-blink"></div><span class="tile-live">LIVE</span></div>
+            </div>
+            <div class="tile-video" style="height:220px;">
+              <img src="/api/feed/CAM_002" alt="CAM_002 feed"
+                onerror="this.src='';this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div style="display:none;position:absolute;inset:0;background:#060b16;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#334155;font-size:12px;">
+                <span style="font-size:30px;">📷</span><span>Feed unavailable</span>
+              </div>
+              <div class="tile-overlay">
+                <span class="tile-badge sim">SIM</span>
+                <span class="tile-badge gps">29.3950°N 76.9750°E</span>
+              </div>
+            </div>
+            <div class="tile-footer">
+              <span class="tile-gps">Model Town · Panipat</span>
+              <button class="tile-expand" onclick="expandCam('CAM_002','Ibrahim Lodi Rd · Model Town')">⛶ Expand</button>
+            </div>
+          </div>
+
+        </div><!-- /cam-grid -->
+      </div>
+
+      <!-- Sidebar: Detections ticker + stats -->
+      <div class="surv-sidebar">
+
+        <!-- Cam mini stats -->
+        <div class="cam-stats-box">
+          <div class="csb-title">📊 Camera Stats</div>
+          <div class="csb-grid" id="camStatsGrid">
+            <div class="csb-item"><div class="csb-label">CAM_001</div><div class="csb-val" id="cs-CAM_001" style="color:#22d3ee">—</div></div>
+            <div class="csb-item"><div class="csb-label">CAM_004</div><div class="csb-val" id="cs-CAM_004" style="color:#4ade80">—</div></div>
+            <div class="csb-item"><div class="csb-label">CAM_005</div><div class="csb-val" id="cs-CAM_005" style="color:#fb923c">—</div></div>
+            <div class="csb-item"><div class="csb-label">CAM_002</div><div class="csb-val" id="cs-CAM_002" style="color:#a78bfa">—</div></div>
+          </div>
+        </div>
+
+        <!-- Live detections ticker -->
+        <div class="ticker-panel">
+          <div class="ticker-head">
+            <div class="ticker-head-title">⚡ Live Detections <span class="auto-badge">AUTO 5s</span></div>
+            <button onclick="loadRecent()" style="background:none;border:none;color:#334155;font-size:11px;">↺</button>
+          </div>
+          <div class="ticker-body" id="tickerBody">
+            <div style="text-align:center;padding:30px;color:#334155;font-size:12px;">Loading detections...</div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /surv-layout -->
+  </div><!-- /tab-surveillance -->
+
+  <!-- ═══ TAB: ROUTE TRACKER ═══ -->
+  <div class="tab-pane" id="tab-tracker">
+    <div class="search-box">
+      <h2>🔎 Vehicle Route Tracker</h2>
+      <p>Enter a licence plate to reconstruct the full travel route across all camera nodes.</p>
+      <div class="search-row">
+        <input type="text" id="plateInput" placeholder="e.g. HR06A1245" maxlength="12">
+        <button class="btn-primary" onclick="searchPlate()">🔍 Track Vehicle</button>
+      </div>
+      <div class="quick-chips">
+        <span>Quick:</span>
+        <button class="chip" onclick="quickSearch('HR06A1245')">HR06A1245</button>
+        <button class="chip" onclick="quickSearch('DL10CB4921')">DL10CB4921</button>
+        <button class="chip" onclick="quickSearch('UP16BE7789')">UP16BE7789</button>
+        <button class="chip" onclick="quickSearch('CH01AB9988')">CH01AB9988</button>
+      </div>
+    </div>
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+    <div class="tracker-layout">
+      <div class="map-panel">
+        <div class="map-header">
+          <div class="map-header-title">🗺️ Route Map <span id="mapPlateLabel" style="font-family:monospace;color:#22d3ee;font-size:11px;margin-left:8px;"></span></div>
+          <span style="font-family:monospace;font-size:10px;color:#334155">Panipat, Haryana</span>
+        </div>
+        <div id="routeMap"></div>
+      </div>
+      <div class="timeline-panel">
+        <div class="tl-header">
+          📍 Sighting Timeline
+          <span id="tlCount" style="font-family:monospace;font-size:10px;color:#334155;">0 events</span>
+        </div>
+        <div id="timelineList">
+          <div class="tl-empty">🚗 Search a plate to see its route timeline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: CAMERA NODES ═══ -->
+  <div class="tab-pane" id="tab-cameras">
+    <div class="section-header">
+      <h2>📡 Camera Node Network</h2>
+      <p>All active surveillance cameras across Panipat city. Click "View Live" to jump to its feed.</p>
+    </div>
+    <div class="cameras-grid" id="camerasGrid">
+      <div style="text-align:center;padding:40px;color:#334155;font-size:12px;" class="spinner" id="camGridSpinner"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: RECORDS ═══ -->
+  <div class="tab-pane" id="tab-records">
+    <div class="records-header">
+      <div>
+        <h2>📋 Detection Records</h2>
+        <p>Complete database of all ANPR detections across the city network.</p>
+      </div>
+      <div class="records-controls">
+        <input type="text" class="filter-input" id="tableFilter" placeholder="FILTER PLATE..." oninput="filterTable()">
+        <button class="btn-sec" onclick="loadRecordsTable()">↺ Refresh</button>
+        <button class="btn-sec" onclick="exportCSV()">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="table-panel">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Plate</th>
+            <th>Camera</th>
+            <th>Location</th>
+            <th>Direction</th>
+            <th>Confidence</th>
+            <th>Status</th>
+            <th>Timestamp</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTbody">
+          <tr><td colspan="9" style="text-align:center;padding:40px;color:#334155;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: IMAGE SCANNER ═══ -->
+  <div class="tab-pane" id="tab-scanner">
+    <div class="section-header">
+      <h2>🔍 ANPR Image Scanner</h2>
+      <p>Upload any vehicle image and the AI engine will extract the licence plate instantly.</p>
+    </div>
+    <div class="scanner-grid">
+      <div class="upload-panel">
+        <div class="panel-title">📤 Upload Image</div>
+        <div class="field-label">Select Camera Node</div>
+        <select class="sel-field" id="scanCamera">
+          <option value="CAM_001">CAM_001 — Panipat Toll Plaza, NH-44</option>
+          <option value="CAM_004" selected>CAM_004 — GT Road, Bus Stand Chowk</option>
+          <option value="CAM_005">CAM_005 — Sector 18 Main Gate</option>
+          <option value="CAM_002">CAM_002 — Ibrahim Lodi Rd, Model Town</option>
+        </select>
+        <div class="field-label">Vehicle Image</div>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
+          ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+          <div class="drop-icon">🚗</div>
+          <div class="drop-title">Click or drag image here</div>
+          <div class="drop-sub">JPG, PNG, BMP — max 10MB</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
+        <div class="file-info" id="fileInfo">
+          <span class="file-name" id="fileName">—</span>
+          <button class="scan-btn" id="scanBtn" onclick="doScan()" disabled>🔍 Scan</button>
+        </div>
+      </div>
+      <div class="result-panel">
+        <div class="panel-title">📊 Scan Results</div>
+        <div class="result-placeholder" id="resultPlaceholder">
+          <span style="font-size:32px;">🔍</span>
+          <span>Upload an image and click Scan</span>
+          <span style="color:#1e293b;font-size:10px;">AI will detect plates automatically</span>
+        </div>
+        <div class="result-image-wrap" id="resultImageWrap">
+          <img id="resultImage" src="" alt="Annotated result">
+          <div class="plates-list" id="platesList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══ EXPAND MODAL ═══ -->
+<div id="camModal">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">📹 CAM_001 — LIVE FEED</span>
+      <button class="modal-close" onclick="closeModal()">✕ Close</button>
+    </div>
+    <img id="modalFeed" src="" alt="Expanded camera feed">
+    <div class="modal-footer">
+      <span id="modalLoc">—</span>
+      <span style="color:#334155;font-family:monospace;font-size:10px;">Press ESC to close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <span>SENTINEL ANPR v2.1 | City Intelligence System | Panipat, Haryana</span>
+  <span id="footerTime">—</span>
+</footer>
+
+<!-- Leaflet JS -->
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"
+  onerror="console.warn('Leaflet offline')"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   SENTINEL ANPR — Client-side JS
+═══════════════════════════════════════════════════════ */
+
+// ── State ─────────────────────────────────────────────
+let leafletMap = null;
+let routeLayer = null;
+let markerLayer = null;
+let allRecords = [];
+let activeCams = new Set(['CAM_001','CAM_004','CAM_005','CAM_002']);
+let selectedFile = null;
+
+// ── Clock ─────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  const s = now.getSeconds().toString().padStart(2,'0');
+  const dateStr = now.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('clockTime').textContent = `${h}:${m}:${s}`;
+  document.getElementById('clockDate').textContent = dateStr;
+  document.getElementById('footerTime').textContent = `${h}:${m}:${s} IST`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Tab switching ──────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const btns = document.querySelectorAll('.tab-btn');
+  const labels = ['surveillance','tracker','cameras','records','scanner'];
+  btns.forEach((b,i) => { if(labels[i]===name) b.classList.add('active'); });
+  if(name==='tracker' && !leafletMap) initMap();
+  if(name==='cameras') loadCameraNodes();
+  if(name==='records') loadRecordsTable();
+}
+
+// ── Load KPI stats ─────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats');
+    const d = await r.json();
+    document.getElementById('kpiTotal').textContent  = d.total_detections ?? '—';
+    document.getElementById('kpiUnique').textContent = d.unique_plates_count ?? '—';
+    document.getElementById('kpiCams').textContent   = d.active_cameras_count ?? '—';
+    document.getElementById('kpiToday').textContent  = d.today_detections ?? '—';
+  } catch(e) { console.warn('Stats load failed', e); }
+}
+
+// ── Load system status ────────────────────────────────
+async function loadStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    const cams = d.cameras || [];
+    document.getElementById('hdrCams').textContent = `${cams.length} CAM`;
+    document.getElementById('hdrDb').textContent = d.database_connected ? 'ATLAS' : 'LOCAL';
+    document.getElementById('hdrDb').style.color = d.database_connected ? '#34d399' : '#22d3ee';
+  } catch(e) {}
+}
+
+// ── Camera filter toggle ──────────────────────────────
+function toggleCamFilter(camId) {
+  const btn = document.getElementById('fbtn-' + camId);
+  const tile = document.getElementById('tile-' + camId);
+  if(activeCams.has(camId)) {
+    activeCams.delete(camId);
+    btn.classList.remove('active');
+    if(tile) { tile.style.display='none'; }
+  } else {
+    activeCams.add(camId);
+    btn.classList.add('active');
+    if(tile) { tile.style.display=''; }
+  }
+}
+
+// ── Mode switcher (City Sim vs Webcam) ────────────────
+async function setFeedMode(mode) {
+  try {
+    const form = new FormData();
+    form.append('mode', mode);
+    form.append('cam_id', 'CAM_004');
+    await fetch('/api/camera/mode', { method: 'POST', body: form });
+    const btnSim = document.getElementById('modeBtnSim');
+    const btnCam = document.getElementById('modeBtnCam');
+    if (btnSim) btnSim.classList.toggle('active', mode === 'simulation');
+    if (btnCam) btnCam.classList.toggle('active', mode === 'webcam');
+    
+    // Refresh feeds with timestamp to burst browser cache
+    const t = Date.now();
+    ['CAM_001','CAM_004','CAM_005','CAM_002'].forEach(cid => {
+      const tile = document.getElementById('tile-' + cid);
+      if (tile) {
+        const img = tile.querySelector('img');
+        if (img) img.src = `/api/feed/${cid}?t=${t}`;
+      }
+    });
+  } catch(e) {
+    console.error('Mode toggle failed', e);
+  }
+}
+
+// ── Layout switcher ───────────────────────────────────
+function setLayout(cls) {
+  const grid = document.getElementById('camGrid');
+  grid.className = 'cam-grid ' + cls;
+  document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+  const map = {'layout-big':0,'layout-4':1,'layout-3':2,'layout-1':3};
+  const btns = document.querySelectorAll('.layout-btn');
+  if(map[cls] !== undefined) btns[map[cls]].classList.add('active');
+  // Adjust tile heights for different layouts
+  const heights = {'layout-4':'220px','layout-3':'200px','layout-big':'300px','layout-1':'440px'};
+  document.querySelectorAll('.tile-video').forEach(v => {
+    v.style.height = heights[cls] || '220px';
+  });
+}
+
+// ── Expand camera modal ───────────────────────────────
+function expandCam(camId, loc) {
+  document.getElementById('modalTitle').textContent = `📹 ${camId} — LIVE FEED`;
+  document.getElementById('modalLoc').textContent = loc;
+  document.getElementById('modalFeed').src = `/api/feed/${camId}?t=${Date.now()}`;
+  document.getElementById('camModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('camModal').classList.remove('open');
+  document.getElementById('modalFeed').src = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+document.getElementById('camModal').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+
+// ── Live detections ticker ────────────────────────────
+async function loadRecent() {
+  try {
+    const r = await fetch('/api/recent?limit=25');
+    const data = await r.json();
+    const body = document.getElementById('tickerBody');
+    if(!data || data.length===0) {
+      body.innerHTML = '<div style="text-align:center;padding:30px;color:#334155;font-size:11px;">No detections yet</div>';
+      return;
+    }
+    body.innerHTML = data.map(d => `
+      <div class="ticker-card" onclick="quickSearch('${d.plate}')">
+        <span class="tc-plate">${d.plate}</span>
+        <div class="tc-info">
+          <div class="tc-cam">${d.camera || '—'}</div>
+          <div class="tc-dir">${d.direction || '—'}</div>
+          <div class="tc-loc">${(d.location||'').substring(0,34)}</div>
+        </div>
+        <div class="tc-right">
+          <div class="conf-b ${(d.confidence||0)>=0.7?'conf-h':'conf-l'}">${((d.confidence||0)*100).toFixed(0)}%</div>
+          <div class="tc-ts">${(d.timestamp||'—').substring(11,19)}</div>
+        </div>
+      </div>`).join('');
+
+    // Update camera stat counts
+    const counts = {};
+    data.forEach(d => { counts[d.camera] = (counts[d.camera]||0)+1; });
+    ['CAM_001','CAM_004','CAM_005','CAM_002'].forEach(c => {
+      const el = document.getElementById('cs-'+c);
+      if(el) el.textContent = (counts[c]||0) + ' det';
+    });
+  } catch(e) { console.warn('Recent load failed', e); }
+}
+
+// ── Plate search ──────────────────────────────────────
+async function searchPlate() {
+  const plate = document.getElementById('plateInput').value.trim().toUpperCase();
+  if(!plate) return;
+  if(!leafletMap) initMap();
+  switchTab('tracker');
+
+  document.getElementById('mapPlateLabel').textContent = plate;
+  document.getElementById('tlCount').textContent = 'Loading...';
+  document.getElementById('summaryCard').classList.remove('visible');
+
+  try {
+    const r = await fetch(`/api/search?plate=${encodeURIComponent(plate)}`);
+    const d = await r.json();
+    const sightings = d.sightings || [];
+
+    document.getElementById('tlCount').textContent = sightings.length + ' events';
+
+    // Summary card
+    if(sightings.length > 0) {
+      document.getElementById('summaryCard').classList.add('visible');
+      document.getElementById('summaryGrid').innerHTML = `
+        <div><div class="sum-label">Plate</div><div class="sum-val big">${d.plate||plate}</div></div>
+        <div><div class="sum-label">Sightings</div><div class="sum-val md">${sightings.length}</div></div>
+        <div><div class="sum-label">First Seen</div><div class="sum-val sm">${sightings[sightings.length-1]?.timestamp?.substring(0,16)||'—'}</div></div>
+        <div><div class="sum-label">Last Seen</div><div class="sum-val gn">${sightings[0]?.timestamp?.substring(0,16)||'—'}</div></div>
+        <div><div class="sum-label">Cameras Hit</div><div class="sum-val md">${[...new Set(sightings.map(s=>s.camera))].join(', ')}</div></div>
+      `;
+    }
+
+    // Timeline
+    const tl = document.getElementById('timelineList');
+    if(sightings.length===0) {
+      tl.innerHTML = '<div class="tl-empty">No sightings found for <strong>'+plate+'</strong></div>';
+    } else {
+      tl.innerHTML = sightings.map((s,i)=>`
+        <div class="tl-item">
+          <div class="tl-dot ${i===0?'last':''}">${i+1}</div>
+          <div class="tl-time">${s.timestamp||'—'}</div>
+          <div class="tl-cam">${s.camera||'—'} · ${s.direction||'—'}</div>
+          <div class="tl-loc">${s.location||'—'}</div>
+          <div class="tl-conf">Conf: ${((s.confidence||0)*100).toFixed(1)}% · ${s.status||'—'}</div>
+        </div>`).join('');
+    }
+
+    // Map markers
+    updateRouteMap(plate, sightings);
+
+  } catch(e) {
+    console.error('Search failed', e);
+    document.getElementById('timelineList').innerHTML = '<div class="tl-empty">Search error. Try again.</div>';
+  }
+}
+
+function quickSearch(plate) {
+  document.getElementById('plateInput').value = plate;
+  searchPlate();
+}
+function navQuickSearch() {
+  const v = document.getElementById('navSearch').value.trim().toUpperCase();
+  if(v) { document.getElementById('plateInput').value = v; searchPlate(); }
+}
+
+// ── Leaflet map ────────────────────────────────────────
+function initMap() {
+  if(typeof L === 'undefined') {
+    document.getElementById('routeMap').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:450px;color:#334155;font-size:12px;flex-direction:column;gap:8px;"><span style="font-size:30px">🗺️</span><span>Map unavailable (offline)</span></div>';
+    return;
+  }
+  leafletMap = L.map('routeMap').setView([29.395, 76.968], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap contributors', maxZoom:18
+  }).addTo(leafletMap);
+  routeLayer = L.layerGroup().addTo(leafletMap);
+  markerLayer = L.layerGroup().addTo(leafletMap);
+
+  // Always show camera nodes
+  const cameras = [
+    {id:'CAM_001',lat:29.4215,lng:76.9682,loc:'Toll Plaza · NH-44'},
+    {id:'CAM_004',lat:29.3909,lng:76.9635,loc:'GT Road · Bus Stand'},
+    {id:'CAM_005',lat:29.3784,lng:76.9812,loc:'Sector 18 Gate'},
+    {id:'CAM_002',lat:29.3950,lng:76.9750,loc:'Ibrahim Lodi Rd'},
+  ];
+  cameras.forEach(c => {
+    const icon = L.divIcon({
+      html: `<div style="background:#0891b2;border:2px solid #22d3ee;border-radius:50%;width:14px;height:14px;"></div>`,
+      className: '', iconSize: [14,14], iconAnchor: [7,7]
+    });
+    L.marker([c.lat,c.lng],{icon})
+      .addTo(markerLayer)
+      .bindPopup(`<b style="color:#22d3ee">${c.id}</b><br>${c.loc}`);
+  });
+}
+
+function updateRouteMap(plate, sightings) {
+  if(!leafletMap || typeof L==='undefined') return;
+  routeLayer.clearLayers();
+
+  if(sightings.length===0) return;
+
+  const pts = sightings.filter(s=>s.latitude&&s.longitude).map(s=>[s.latitude,s.longitude]);
+  if(pts.length===0) return;
+
+  // Draw route line
+  L.polyline(pts, {color:'#22d3ee', weight:3, dashArray:'6,4', opacity:0.8}).addTo(routeLayer);
+
+  // Place markers
+  sightings.forEach((s,i) => {
+    if(!s.latitude||!s.longitude) return;
+    const isFirst = i===sightings.length-1;
+    const isLast  = i===0;
+    const col = isLast?'#10b981':isFirst?'#f59e0b':'#0891b2';
+    const icon = L.divIcon({
+      html:`<div style="background:${col};border:2px solid #fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;">${i+1}</div>`,
+      className:'', iconSize:[18,18], iconAnchor:[9,9]
+    });
+    L.marker([s.latitude,s.longitude],{icon}).addTo(routeLayer)
+      .bindPopup(`<b style="color:#22d3ee">${plate}</b><br>${s.camera||'—'}<br>${s.timestamp||'—'}<br>Conf: ${((s.confidence||0)*100).toFixed(1)}%`);
+  });
+
+  leafletMap.fitBounds(pts, {padding:[30,30]});
+}
+
+// ── Camera nodes tab ──────────────────────────────────
+async function loadCameraNodes() {
+  const CAMS = [
+    {id:'CAM_001',loc:'Panipat Toll Plaza, NH-44',lat:29.4215,lng:76.9682,col:'c1'},
+    {id:'CAM_004',loc:'GT Road, Bus Stand Chowk',lat:29.3909,lng:76.9635,col:'c2'},
+    {id:'CAM_005',loc:'Sector 18 Main Gate',lat:29.3784,lng:76.9812,col:'c3'},
+    {id:'CAM_002',loc:'Ibrahim Lodi Rd, Model Town',lat:29.3950,lng:76.9750,col:'c4'},
+  ];
+
+  let counts = {};
+  try {
+    const r = await fetch('/api/recent?limit=200');
+    const data = await r.json();
+    data.forEach(d => { counts[d.camera] = (counts[d.camera]||0)+1; });
+  } catch(e){}
+
+  const grid = document.getElementById('camerasGrid');
+  grid.innerHTML = CAMS.map(c => `
+    <div class="cam-node">
+      <div class="cam-node-header">
+        <span class="cam-id-badge">${c.id}</span>
+        <div class="cam-status"><div class="cam-status-dot"></div>ONLINE</div>
+      </div>
+      <div>
+        <div class="cam-name">📍 ${c.loc}</div>
+        <div class="cam-gps">GPS: ${c.lat}°N, ${c.lng}°E</div>
+      </div>
+      <div class="cam-thumb">
+        <img src="/api/feed/${c.id}" alt="${c.id}" loading="lazy">
+      </div>
+      <div class="cam-stats">
+        <div class="cam-stat"><div class="cam-stat-label">Detections</div><div class="cam-stat-val">${counts[c.id]||0}</div></div>
+        <div class="cam-stat"><div class="cam-stat-label">Status</div><div class="cam-stat-val" style="color:#34d399;font-size:11px;">ACTIVE</div></div>
+      </div>
+      <button class="view-cam-btn" onclick="switchTab('surveillance');document.getElementById('tile-${c.id}').scrollIntoView({behavior:'smooth'});">
+        📹 View Live Feed
+      </button>
+    </div>`).join('');
+}
+
+// ── Records table ─────────────────────────────────────
+async function loadRecordsTable() {
+  try {
+    const r = await fetch('/api/recent?limit=200');
+    allRecords = await r.json();
+    renderTable(allRecords);
+  } catch(e) {
+    document.getElementById('recordsTbody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#334155;">Load failed. Retry.</td></tr>';
+  }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('recordsTbody');
+  if(!data || data.length===0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#334155;">No records found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((d,i) => `
+    <tr>
+      <td style="color:#1e293b;font-family:monospace;">${i+1}</td>
+      <td class="td-plate">${d.plate||'—'}</td>
+      <td class="td-cam">${d.camera||'—'}</td>
+      <td class="td-loc" title="${d.location||''}">${(d.location||'—').substring(0,30)}</td>
+      <td style="color:#64748b;font-size:11px;">${d.direction||'—'}</td>
+      <td class="td-ts">${((d.confidence||0)*100).toFixed(1)}%</td>
+      <td><span class="sb ${(d.status||'')==='"high_confidence"'||d.status==='high_confidence'?'sb-h':'sb-l'}">${d.status==='high_confidence'?'HIGH':'LOW'}</span></td>
+      <td class="td-ts">${d.timestamp||'—'}</td>
+      <td><button class="tr-btn" onclick="quickSearch('${d.plate||''}')">🔍 Track</button></td>
+    </tr>`).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('tableFilter').value.trim().toUpperCase();
+  if(!q) { renderTable(allRecords); return; }
+  renderTable(allRecords.filter(r => (r.plate||'').toUpperCase().includes(q)));
+}
+
+function exportCSV() {
+  const rows = [['Plate','Camera','Location','Direction','Confidence','Status','Timestamp']];
+  allRecords.forEach(d => rows.push([d.plate,d.camera,d.location,d.direction,d.confidence,d.status,d.timestamp]));
+  const csv = rows.map(r => r.map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'sentinel_anpr_records.csv';
+  a.click();
+}
+
+// ── Image scanner ─────────────────────────────────────
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').style.borderColor='#0891b2'; }
+function handleDrop(e) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(f) setFile(f);
+  document.getElementById('dropZone').style.borderColor='';
+}
+function handleFile(e) { if(e.target.files[0]) setFile(e.target.files[0]); }
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('fileName').textContent = f.name;
+  document.getElementById('fileInfo').classList.add('visible');
+  document.getElementById('scanBtn').disabled = false;
+}
+
+async function doScan() {
+  if(!selectedFile) return;
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true; btn.textContent = '⏳ Scanning...';
+  document.getElementById('resultPlaceholder').style.display='flex';
+  document.getElementById('resultImageWrap').classList.remove('visible');
+
+  try {
+    const form = new FormData();
+    form.append('file', selectedFile);
+    form.append('cam_id', document.getElementById('scanCamera').value);
+
+    const r = await fetch('/api/scan_image', {method:'POST', body:form});
+    const d = await r.json();
+
+    if(d.error) throw new Error(d.error);
+
+    document.getElementById('resultPlaceholder').style.display='none';
+    document.getElementById('resultImageWrap').classList.add('visible');
+    document.getElementById('resultImage').src = d.annotated_image || '';
+
+    const pl = document.getElementById('platesList');
+    if(d.plates_detected && d.plates_detected.length>0) {
+      pl.innerHTML = d.plates_detected.map(p=>`
+        <div class="plate-result">
+          <span class="plate-result-num">🚗 ${p.plate}</span>
+          <span class="plate-result-conf">Conf: ${((p.confidence||0)*100).toFixed(1)}% · ${p.status||'—'}</span>
+          <button class="tr-btn" onclick="quickSearch('${p.plate}')">Track</button>
+        </div>`).join('');
+    } else {
+      pl.innerHTML = '<div style="color:#475569;font-size:12px;padding:12px;">No plates detected in this image.</div>';
+    }
+  } catch(err) {
+    document.getElementById('resultPlaceholder').style.display='flex';
+    document.getElementById('resultPlaceholder').innerHTML = '<span style="font-size:28px">❌</span><span style="color:#ef4444">Scan failed: '+err.message+'</span>';
+  } finally {
+    btn.disabled = false; btn.innerHTML = '🔍 Scan';
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────
+(async function init() {
+  await loadStats();
+  await loadStatus();
+  await loadRecent();
+  setInterval(loadRecent, 5000);
+  setInterval(loadStats, 15000);
+  setInterval(loadStatus, 30000);
+})();
+</script>
+</body>
+</html>
