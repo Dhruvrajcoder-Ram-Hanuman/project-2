@@ -1,13 +1,3 @@
----
-title: Sentinel ANPR
-emoji: 🛡️
-colorFrom: blue
-colorTo: green
-sdk: gradio
-app_file: app.py
-pinned: false
----
-
 # 🛡️ SENTINEL ANPR - City Surveillance & Vehicle Route Intelligence System
 
 > **Enterprise-Grade Automatic Number Plate Recognition (ANPR / ALPR) & Vehicle Route Reconstruction Command Center**  
