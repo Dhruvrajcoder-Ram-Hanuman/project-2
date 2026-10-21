@@ -3,6 +3,7 @@
 
 fastapi>=0.110.0
 uvicorn>=0.28.0
+gradio>=4.0.0
 opencv-python-headless>=4.8.0
 ultralytics>=8.1.0
 easyocr>=1.7.1
