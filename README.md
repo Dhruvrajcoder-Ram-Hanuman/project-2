@@ -1,3 +1,13 @@
+---
+title: Sentinel ANPR
+emoji: 🛡️
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🛡️ SENTINEL ANPR - City Surveillance & Vehicle Route Intelligence System
 
 > **Enterprise-Grade Automatic Number Plate Recognition (ANPR / ALPR) & Vehicle Route Reconstruction Command Center**  
@@ -114,6 +124,34 @@ Aap is project ko **Render.com** par 100% free live host kar sakte hain taaki ko
    - **`Deploy Web Service`** par click karein.
    - 2 se 3 minute ke andar aapka project live ho jayega aur aapko ek permanent public URL mil jayega:  
      👉 `https://sentinel-anpr.onrender.com`
+
+---
+
+## 🤗 Hugging Face Spaces Deployment Guide (AI ke liye 16GB RAM FREE)
+
+Hugging Face Spaces AI & Computer Vision projects ke liye duniya ka sabse popular platform hai:
+
+1. **Hugging Face Account Banayein:**
+   - [https://huggingface.co](https://huggingface.co) par sign up / login karein.
+2. **New Space Create Karein:**
+   - Top-right profile icon par click karein aur **"New Space"** chunein.
+   - **Space Name:** `sentinel-anpr`
+   - **License:** `mit` ya `apache-2.0`
+   - **Space SDK:** **`Docker`** *(Blank chunein)*
+   - **Space Hardware:** **`CPU basic · 2 vCPU · 16 GB RAM · FREE`**
+   - **Visibility:** `Public`
+   - Click **"Create Space"**.
+3. **Repository Connect / Push Karein:**
+   - Space banne ke baad Hugging Face aapko Git clone link dega.
+   - Apne computer terminal par run karein:
+   ```bash
+   git remote add hf https://huggingface.co/spaces/<AapkaUsername>/sentinel-anpr
+   git push hf main
+   ```
+   *(Ya fir Hugging Face Space settings mein jakar "Connect GitHub repository" se direct connect kar sakte hain).*
+4. **Live URL:**
+   - 2 minute mein build complete ho jayega aur aapka permanent free AI dashboard live ho jayega:  
+     👉 `https://<AapkaUsername>-sentinel-anpr.hf.space`
 
 ---
 
